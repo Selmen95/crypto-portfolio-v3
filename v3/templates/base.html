@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio DSBA</title>
+    <!-- Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#09090b",
+                        foreground: "#fafafa",
+                        card: "#18181b",
+                        "card-foreground": "#fafafa",
+                        primary: "#6366f1", // Indigo
+                        "primary-foreground": "#ffffff",
+                        border: "#27272a",
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .privacy-blur {
+            filter: blur(6px);
+            user-select: none;
+            transition: filter 0.3s ease;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('ui', {
+                privacyMode: localStorage.getItem('privacyMode') === 'true',
+                togglePrivacy() {
+                    this.privacyMode = !this.privacyMode;
+                    localStorage.setItem('privacyMode', this.privacyMode);
+                }
+            })
+        })
+    </script>
+</head>
+
+<body class="min-h-screen flex bg-[#0f0f13] text-zinc-100 font-sans anti-aliased selection:bg-indigo-500/30">
+
+    <!-- Sidebar -->
+    <aside
+        class="w-64 border-r border-zinc-800 bg-[#13131a] flex flex-col h-screen fixed left-0 top-0 overflow-y-auto scrollbar-hide">
+        <!-- Brand -->
+        <div class="h-20 flex items-center px-6 border-b border-zinc-800/50">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                        <polyline points="16 7 22 7 22 13" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-tight text-indigo-400">Portfolio DSBA</h1>
+                    <p class="text-[11px] text-zinc-500 font-medium">Gestion Patrimoine</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex-1 py-6 px-3 space-y-8">
+
+            <!-- Standard Nav -->
+            <div>
+                <h3 class="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Navigation</h3>
+                <nav class="space-y-0.5">
+                    {% set nav_items = [
+                    ('landing', 'Accueil', 'home'),
+                    ('dashboard', 'Tableau de Bord', 'layout-dashboard'),
+                    ('assets_list', 'Mes Actifs', 'line-chart'),
+                    ('transactions', 'Transactions', 'arrow-left-right'),
+                    ('objectifs', 'Objectifs', 'target'),
+                    ('alertes', 'Alertes', 'bell'),
+                    ('simulateur', 'Simulateur', 'calculator'),
+                    ('oracle_page', 'Oracle IA 🔮', 'brain-circuit'),
+                    ('auto_trading_page', 'Auto-Trading', 'bot'),
+                    ('analyse', 'Analyse', 'activity'),
+                    ('dividendes', 'Dividendes', 'dollar-sign'),
+                    ('import_export', 'Import/Export', 'file-text'),
+                    ('wallet', 'Portefeuille', 'wallet'),
+                    ('parametres', 'Paramètres', 'settings')
+                    ] %}
+
+                    {% for endpoint, label, icon in nav_items %}
+                    <a href="{{ url_for(endpoint) }}"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group
+                              {{ 'bg-indigo-500/10 text-indigo-400' if active_page == (endpoint if endpoint != 'assets_list' else 'assets') else 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50' }}">
+
+                        <!-- Simple Icon Mapping via Logic or SVG inclusion -->
+                        <span
+                            class="{{ 'text-indigo-500' if active_page == (endpoint if endpoint != 'assets_list' else 'assets') else 'text-zinc-500 group-hover:text-zinc-300' }}">
+                            {% if icon == 'home' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            {% elif icon == 'layout-dashboard' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect width="7" height="9" x="3" y="3" rx="1" />
+                                <rect width="7" height="5" x="14" y="3" rx="1" />
+                                <rect width="7" height="9" x="14" y="12" rx="1" />
+                                <rect width="7" height="5" x="3" y="16" rx="1" />
+                            </svg>
+                            {% elif icon == 'line-chart' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" />
+                            </svg>
+                            {% elif icon == 'arrow-left-right' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M8 3 4 7l4 4" />
+                                <path d="M4 7h16" />
+                                <path d="m16 21 4-4-4-4" />
+                                <path d="M20 17H4" />
+                            </svg>
+                            {% elif icon == 'target' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <circle cx="12" cy="12" r="6" />
+                                <circle cx="12" cy="12" r="2" />
+                            </svg>
+                            {% elif icon == 'bell' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                            </svg>
+                            {% elif icon == 'zap' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            {% elif icon == 'activity' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                            {% elif icon == 'dollar-sign' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            {% elif icon == 'file-text' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                            {% elif icon == 'wallet' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                            </svg>
+                            {% elif icon == 'settings' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.76.73l.43-.25a2 2 0 0 1 2 0l.43.25a2 2 0 0 0 2 0v.18a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.76-.73l-.43.25a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 0-2 0v-.18a2 2 0 0 0-2-2z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {% endif %}
+                        </span>
+
+                        {{ label }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </div>
+
+            <!-- Status -->
+            <div>
+                <h3 class="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Statut</h3>
+                <div class="space-y-3 px-3">
+                    <div class="flex items-center gap-3 text-sm text-zinc-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow shadow-emerald-500/50"></span>
+                        Synchronisé
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-zinc-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="text-indigo-500">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                        Suivi en temps réel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-64 overflow-auto">
+        <header
+            class="h-20 border-b border-zinc-800 flex items-center justify-between px-8 bg-[#0f0f13]/80 backdrop-blur sticky top-0 z-10 transition-all duration-200">
+            <h2 class="font-semibold text-lg text-white">{% block header %}{% endblock %}</h2>
+        </header>
+
+        <div class="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in-up">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <style>
+        /* Custom scrollbar to match the sleek look */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

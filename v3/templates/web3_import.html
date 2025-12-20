@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block header %}Import Web3 🦊{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Hero Connection Card -->
+    <div
+        class="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl p-8 backdrop-blur-sm text-center">
+        <div
+            class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1">
+                </path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+            </svg>
+        </div>
+
+        <h2 class="text-3xl font-bold text-white mb-3">Connectez votre Portefeuille</h2>
+        <p class="text-orange-200/80 mb-8 max-w-lg mx-auto">
+            Importez automatiquement vos soldes Ethereum et tokens compatibles EVM directement dans votre portfolio.
+            <br><span class="text-xs text-orange-400 mt-2 block">(Lecture seule - Aucune clé privée requise)</span>
+        </p>
+
+        <button id="connect-btn" onclick="connectWallet()"
+            class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-orange-500/25 flex items-center gap-3 mx-auto text-lg">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-6 h-6"
+                alt="MetaMask">
+            Connecter MetaMask
+        </button>
+
+        <div id="wallet-info"
+            class="hidden mt-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700 inline-block text-left min-w-[300px]">
+            <div class="text-sm text-slate-400 mb-1">Adresse Connectée</div>
+            <div id="wallet-address" class="font-mono text-white mb-4 bg-slate-800 px-3 py-1 rounded text-sm break-all">
+            </div>
+
+            <div class="text-sm text-slate-400 mb-1">Solde ETH</div>
+            <div class="text-2xl font-bold text-white flex items-center gap-2">
+                <span id="eth-balance">0.00</span>
+                <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">ETH</span>
+            </div>
+            <div id="eth-value-usd" class="text-sm text-green-400 mt-1">$0.00</div>
+        </div>
+    </div>
+
+    <!-- Scan Results -->
+    <div id="scan-section" class="hidden">
+        <h3 class="text-xl font-bold text-white mb-4">Actifs Détectés</h3>
+        <div class="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-800/50 text-slate-400 text-sm">
+                    <tr>
+                        <th class="p-4 font-medium">Actif</th>
+                        <th class="p-4 font-medium">Solde</th>
+                        <th class="p-4 font-medium text-right">Valeur Estimée</th>
+                        <th class="p-4 font-medium text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 text-white">
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs">
+                                    ETH</div>
+                                <div>
+                                    <div class="font-medium">Ethereum</div>
+                                    <div class="text-xs text-slate-500">Native</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td id="table-balance" class="p-4 font-mono">0.0000</td>
+                        <td id="table-value" class="p-4 text-right font-medium">$0.00</td>
+                        <td class="p-4 text-center">
+                            <button onclick="importAsset('ETH', currentEthBalance)"
+                                class="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-lg text-sm transition-colors border border-indigo-500/30">
+                                Importer
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- Future: Token list loop here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Ethers.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+
+<script>
+    let currentEthBalance = 0;
+
+    async function connectWallet() {
+        const btn = document.getElementById('connect-btn');
+        const info = document.getElementById('wallet-info');
+        const scan = document.getElementById('scan-section');
+
+        if (typeof window.ethereum === 'undefined') {
+            alert("Veuillez installer MetaMask !");
+            return;
+        }
+
+        try {
+            btn.innerHTML = '<span class="animate-spin mr-2">⏳</span> Connexion...';
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+
+            // Get Balance
+            const balanceBigInt = await provider.getBalance(address);
+            currentEthBalance = ethers.formatEther(balanceBigInt);
+
+            // Update UI
+            document.getElementById('wallet-address').textContent = address;
+            document.getElementById('eth-balance').textContent = parseFloat(currentEthBalance).toFixed(4);
+            document.getElementById('table-balance').textContent = parseFloat(currentEthBalance).toFixed(4);
+
+            btn.classList.add('hidden');
+            info.classList.remove('hidden');
+            info.classList.add('animate-fade-in');
+            scan.classList.remove('hidden');
+            scan.classList.add('animate-fade-in');
+
+            // Optional: Fetch price from our API to show USD value locally implies calls to backend or passing price in template
+            // We can just rely on the Import to do the math.
+
+        } catch (error) {
+            console.error(error);
+            alert("Erreur de connexion: " + error.message);
+            btn.innerHTML = 'Réessayer';
+        }
+    }
+
+    async function importAsset(symbol, amount) {
+        if (parseFloat(amount) <= 0) {
+            alert("Solde insuffisant pour importer.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/import-web3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    quantity: amount,
+                    wallet_source: 'MetaMask'
+                })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                alert("Import réussi ! Actif ajouté au portfolio.");
+                // Redirect or Update UI button
+                window.location.href = "{{ url_for('assets_list') }}";
+            } else {
+                alert("Erreur: " + data.error);
+            }
+        } catch (e) {
+            alert("Erreur serveur lors de l'import.");
+        }
+    }
+</script>
+{% endblock %}

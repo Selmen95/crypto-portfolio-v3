@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block header %}Calendrier des Dividendes{% endblock %}
+
+{% block content %}
+<div x-data="dividendsApp()" class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1
+                    class="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Calendrier des Dividendes
+                </h1>
+                <p class="text-slate-400 text-lg">
+                    Suivez vos revenus passifs
+                </p>
+            </div>
+            <button @click="showAddModal = true"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Ajouter
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div
+                class="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    <span class="text-slate-300">Dividendes à venir</span>
+                </div>
+                <div class="text-3xl font-bold text-white" x-text="formatCurrency(totalUpcoming)"></div>
+                <p class="text-sm text-green-400 mt-1" x-text="upcomingDividends.length + ' paiements prévus'"></p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <span class="text-slate-300">Dividendes reçus</span>
+                </div>
+                <div class="text-3xl font-bold text-white" x-text="formatCurrency(totalReceived)"></div>
+                <p class="text-sm text-blue-400 mt-1" x-text="receivedDividends.length + ' paiements'"></p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span class="text-slate-300">Rendement annuel</span>
+                </div>
+                <div class="text-3xl font-bold text-white" x-text="((totalReceived / 10000) * 100).toFixed(2) + '%'">
+                </div>
+                <p class="text-sm text-purple-400 mt-1">Estimation</p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    Prochains Dividendes
+                </h2>
+                <div class="space-y-3">
+                    <template x-for="div in upcomingDividends" :key="div.id">
+                        <div
+                            class="bg-slate-900/50 border border-slate-800 hover:border-indigo-500/30 transition-all rounded-xl p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-400"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="1" x2="12" y2="23" />
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-white text-lg" x-text="div.asset_name"></h3>
+                                        <p class="text-sm text-slate-400"
+                                            x-text="'Paiement le ' + formatDate(div.payment_date)"></p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-green-400" x-text="formatCurrency(div.amount)">
+                                    </div>
+                                    <span
+                                        class="inline-flex items-center rounded-full border border-green-400 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-green-400">
+                                        À venir
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="upcomingDividends.length === 0"
+                        class="bg-slate-900/50 border border-slate-800 rounded-xl p-12 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-slate-600 mx-auto mb-4"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <p class="text-slate-400">Aucun dividende à venir</p>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="receivedDividends.length > 0">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    Historique
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <template x-for="div in receivedDividends.slice(0, 6)" :key="div.id">
+                        <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-white" x-text="div.asset_name"></h4>
+                                    <p class="text-xs text-slate-400" x-text="formatDate(div.payment_date)"></p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold text-blue-400" x-text="formatCurrency(div.amount)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Modal -->
+        <div x-show="showAddModal" style="display: none;"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="bg-[#1e1e24] border border-slate-800 rounded-xl w-full max-w-md shadow-2xl p-6"
+                @click.away="showAddModal = false">
+                <h3 class="text-xl font-bold text-white mb-4">Ajouter un Dividende</h3>
+                <form action="/add_dividend" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Actif</label>
+                        <input name="asset_name" required
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Montant (€)</label>
+                        <input type="number" step="0.01" name="amount" required
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Date de paiement</label>
+                        <input type="date" name="payment_date" required
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex gap-3 justify-end pt-4">
+                        <button type="button" @click="showAddModal = false"
+                            class="px-4 py-2 text-slate-300 hover:text-white">Annuler</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="dividends-data">
+    {{ dividends | tojson | safe }}
+</script>
+<script>
+    function dividendsApp() {
+        return {
+            dividends: (() => {
+                const script = document.getElementById('dividends-data');
+                return script ? JSON.parse(script.textContent) : [];
+            })(),
+            showAddModal: false,
+
+            get upcomingDividends() {
+                return this.dividends.filter(d => new Date(d.payment_date) > new Date()).sort((a, b) => new Date(a.payment_date) - new Date(b.payment_date));
+            },
+
+            get receivedDividends() {
+                return this.dividends.filter(d => new Date(d.payment_date) <= new Date()).sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date));
+            },
+
+            get totalUpcoming() {
+                return this.upcomingDividends.reduce((sum, d) => sum + d.amount, 0);
+            },
+
+            get totalReceived() {
+                return this.receivedDividends.reduce((sum, d) => sum + d.amount, 0);
+            },
+
+            formatCurrency(value) {
+                return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
+            },
+
+            formatDate(dateStr) {
+                return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+        }
+    }
+</script>
+{% endblock %}

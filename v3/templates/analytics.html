@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block header %}Analytique de Marché{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-3xl font-bold text-white mb-6">Analyse Fondamentale & Technique</h1>
+
+    <!-- 1. Technical Analysis Widget -->
+    <div class="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden p-6 mb-8">
+        <h2 class="text-xl font-semibold text-white mb-4">Analyse Technique par Symbole</h2>
+        <div class="h-[500px]">
+            <!-- TradingView Widget BEGIN -->
+            <div class="tradingview-widget-container" id="tv-tech-analysis">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="application/json">
+                    {
+                        "interval": "1m",
+                        "width": "100%",
+                        "isTransparent": true,
+                        "height": "100%",
+                        "symbol": "BINANCE:BTCUSDT",
+                        "showIntervalTabs": true,
+                        "displayMode": "single",
+                        "locale": "fr",
+                        "colorTheme": "dark"
+                    }
+                </script>
+            </div>
+            <script>
+                (function () {
+                    const container = document.getElementById('tv-tech-analysis');
+                    const jsonConfig = container.querySelector('script[type="application/json"]').textContent;
+                    const script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+                    script.async = true;
+                    script.innerHTML = jsonConfig; // TradingView reads config from script content
+                    container.appendChild(script);
+                })();
+            </script>
+            <!-- TradingView Widget END -->
+        </div>
+    </div>
+
+    <!-- 2. Historical Data / Ticker Tape -->
+    <div class="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">Tendances de Marché (Evolutions Historiques)</h2>
+        <div class="h-[600px] w-full">
+            <!-- TradingView Widget BEGIN -->
+            <div class="tradingview-widget-container" id="tv-symbol-overview">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="application/json">
+                    {
+                        "symbols": [
+                            [ "Apple", "AAPL|1D" ],
+                            [ "Google", "GOOGL|1D" ],
+                            [ "Microsoft", "MSFT|1D" ],
+                            [ "Bitcoin", "BINANCE:BTCUSDT|1D" ],
+                            [ "Ethereum", "BINANCE:ETHUSDT|1D" ],
+                            [ "S&P 500", "FOREXCOM:SPXUSD|1D" ],
+                            [ "CAC 40", "INDEX:CAC40|1D" ]
+                        ],
+                        "chartOnly": false,
+                        "width": "100%",
+                        "height": "100%",
+                        "locale": "fr",
+                        "colorTheme": "dark",
+                        "autosize": true,
+                        "showVolume": false,
+                        "showMA": false,
+                        "hideDateRanges": false,
+                        "hideMarketStatus": false,
+                        "hideSymbolLogo": false,
+                        "scalePosition": "right",
+                        "scaleMode": "Normal",
+                        "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
+                        "fontSize": "10",
+                        "noTimeScale": false,
+                        "valuesTracking": "1",
+                        "changeMode": "price-and-percent",
+                        "chartType": "area",
+                        "maLineColor": "#2962FF",
+                        "maLineWidth": 1,
+                        "maLength": 9,
+                        "lineType": 0,
+                        "dateRanges": [
+                            "1m|30",
+                            "3m|60",
+                            "12m|1D",
+                            "60m|1W",
+                            "all|1M"
+                        ]
+                    }
+                </script>
+            </div>
+            <script>
+                (function () {
+                    const container = document.getElementById('tv-symbol-overview');
+                    const jsonConfig = container.querySelector('script[type="application/json"]').textContent;
+                    const script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
+                    script.async = true;
+                    script.innerHTML = jsonConfig;
+                    container.appendChild(script);
+                })();
+            </script>
+            <!-- TradingView Widget END -->
+        </div>
+    </div>
+</div>
+{% endblock %}

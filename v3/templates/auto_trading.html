@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block header %}Trading Automatisé{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Config Column -->
+    <div class="lg:col-span-2 space-y-8">
+
+        <!-- Exchange Connection Card -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-indigo-400">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+                Connexion Échange
+            </h2>
+
+            {% if exchanges and exchanges|length > 0 %}
+            <div
+                class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 mb-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-emerald-400 font-medium">Connecté à {{ exchanges[0].exchange_id|upper }}</span>
+                </div>
+                <button class="text-xs text-red-400 hover:text-red-300 transition-colors">Déconnecter</button>
+            </div>
+            {% else %}
+            <form action="{{ url_for('connect_exchange') }}" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Plateforme</label>
+                        <select name="exchange_id"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500">
+                            <option value="binance">Binance</option>
+                            <option value="coinbase">Coinbase</option>
+                            <option value="kraken">Kraken</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nom (Optionnel)</label>
+                        <input type="text" name="name" placeholder="Mon Compte Principal"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">API Key</label>
+                    <input type="text" name="api_key" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 font-mono text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">API Secret</label>
+                    <input type="password" name="api_secret" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 font-mono text-sm">
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors">
+                    Connecter l'API
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Strategy Settings -->
+        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 backdrop-blur-sm">
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="text-indigo-400">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+                Paramètres du Bot
+            </h2>
+
+            <div x-data="{ 
+                enabled: {{ 'true' if settings.enabled else 'false' }}, 
+                takeProfit: {{ settings.take_profit_percentage }},
+                stopLoss: {{ settings.stop_loss_percentage }} 
+            }" class="space-y-6">
+
+                <div class="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700">
+                    <div>
+                        <div class="font-medium text-white">Activer le Trading</div>
+                        <div class="text-xs text-slate-400">Le bot prendra des positions automatiquement</div>
+                    </div>
+                    <button @click="enabled = !enabled; updateSettings()"
+                        :class="enabled ? 'bg-green-500' : 'bg-slate-600'"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none">
+                        <span :class="enabled ? 'translate-x-6' : 'translate-x-1'"
+                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Take Profit (%)</label>
+                        <input type="number" x-model="takeProfit" @change="updateSettings()"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Stop Loss (%)</label>
+                        <input type="number" x-model="stopLoss" @change="updateSettings()"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-red-500">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-400">Paires de Trading</label>
+                    <div class="flex flex-wrap gap-2">
+                        {% for pair in settings.trading_pairs %}
+                        <span
+                            class="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">{{
+                            pair }}</span>
+                        {% endfor %}
+                        <button
+                            class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-xs transition-colors">+
+                            Ajouter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Column -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 backdrop-blur-sm h-full">
+            <h3 class="font-semibold text-white mb-4">Derniers Signaux</h3>
+            <div class="space-y-4">
+                <!-- Mock Signals -->
+                <div class="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <div class="mt-1">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-green-400">Achat BTC/USDT</div>
+                        <div class="text-xs text-slate-500">Il y a 2 min • RSI < 30</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                        <div class="mt-1">
+                            <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-red-400">Vente ETH/USDT</div>
+                            <div class="text-xs text-slate-500">Il y a 15 min • Target Atteinte</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateSettings() {
+            // Logic to POST to /api/auto-trade/settings goes here
+            // Using Alpine data ideally
+        }
+    </script>
+    {% endblock %}

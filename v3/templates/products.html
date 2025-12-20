@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block header %}Nos Produits{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <div class="text-center max-w-2xl mx-auto mb-12">
+        <h1
+            class="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">
+            Une gamme complète d'actifs
+        </h1>
+        <p class="text-slate-400 text-lg">
+            Diversifiez votre patrimoine avec notre sélection de produits financiers premium.
+        </p>
+    </div>
+
+    <!-- Asset Classes Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Stocks -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-indigo-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center text-indigo-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Actions</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Investissez dans les plus grandes entreprises mondiales. Accédez aux marchés US, Europe et Asie avec des
+                commissions ultra-faibles.
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Dividendes
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Droits de vote
+                </li>
+            </ul>
+            <a href="{{ url_for('markets') }}"
+                class="text-indigo-400 text-sm font-medium hover:text-indigo-300 flex items-center">
+                Voir les marchés <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- ETF -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-purple-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="m19 9-5 5-4-4-3 3" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">ETF</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Diversification instantanée avec des paniers d'actions. Suivez des indices comme le S&P 500, le Nasdaq
+                ou des secteurs spécifiques.
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Frais de gestion réduits
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Diversification automatique
+                </li>
+            </ul>
+            <a href="{{ url_for('markets') }}"
+                class="text-purple-400 text-sm font-medium hover:text-purple-300 flex items-center">
+                Voir les ETF <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Crypto -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-orange-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center text-orange-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                    <line x1="12" y1="18" x2="12" y2="22" />
+                    <line x1="12" y1="2" x2="12" y2="6" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Cryptomonnaies</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Accédez à l'avenir de la finance. Bitcoin, Ethereum et plus de 200 altcoins disponibles 24/7.
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Trading 24/7
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Staking disponible
+                </li>
+            </ul>
+            <a href="{{ url_for('trading') }}"
+                class="text-orange-400 text-sm font-medium hover:text-orange-300 flex items-center">
+                Trader Crypto <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Real Estate -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18" />
+                    <path d="M5 21V7l8-4 8 4v14" />
+                    <path d="M17 21v-8H7v8" />
+                    <path d="M9 9h1" />
+                    <path d="M9 13h1" />
+                    <path d="M9 17h1" />
+                    <path d="M14 9h1" />
+                    <path d="M14 13h1" />
+                    <path d="M14 17h1" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Immobilier</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Investissez dans la pierre-papier via des SCPI ou des actions de foncières cotées (REITs).
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Revenus locatifs
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Protection inflation
+                </li>
+            </ul>
+            <a href="#" class="text-emerald-400 text-sm font-medium hover:text-emerald-300 flex items-center">
+                Découvrir Immo <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Commodities -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-yellow-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center text-yellow-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7" />
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                    <circle cx="12" cy="8" r="3" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Matières Premières</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Or, Argent, Pétrole. Couvrez votre portefeuille contre les risques systémiques.
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Valeur refuge
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Diversification non-corrélée
+                </li>
+            </ul>
+            <a href="{{ url_for('markets') }}"
+                class="text-yellow-400 text-sm font-medium hover:text-yellow-300 flex items-center">
+                Matières Premières <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Bonds -->
+        <div
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-blue-500/50 transition-all group">
+            <div
+                class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Obligations</h3>
+            <p class="text-slate-400 mb-4 text-sm">
+                Prêtez aux états et aux entreprises pour recevoir des intérêts réguliers (coupons).
+            </p>
+            <ul class="space-y-2 mb-6">
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Revenus fixes
+                </li>
+                <li class="flex items-center text-xs text-slate-300">
+                    <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Moins volatil que les actions
+                </li>
+            </ul>
+            <a href="{{ url_for('markets') }}"
+                class="text-blue-400 text-sm font-medium hover:text-blue-300 flex items-center">
+                Voir Obligations <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

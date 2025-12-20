@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block header %}Oracle IA 🔮{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Intro Card -->
+    <div
+        class="relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 p-8 backdrop-blur-sm">
+        <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl"></div>
+        <div class="relative z-10">
+            <h2 class="text-3xl font-bold text-white mb-2">Prédictions de Marché par IA</h2>
+            <p class="text-indigo-200 max-w-2xl">
+                Notre modèle d'apprentissage automatique analyse les tendances historiques pour prédire les mouvements
+                futurs.
+                <span class="text-xs text-indigo-400 block mt-1">*Les prédictions ne constituent pas des conseils
+                    financiers.</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex gap-4">
+        <select id="asset-select"
+            class="bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 outline-none focus:border-indigo-500">
+            <option value="bitcoin">Bitcoin (BTC)</option>
+            <option value="ethereum">Ethereum (ETH)</option>
+            <option value="solana">Solana (SOL)</option>
+            <option value="ripple">XRP</option>
+            <option value="dogecoin">Dogecoin</option>
+        </select>
+        <button onclick="runPrediction()"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                <line x1="12" y1="12" x2="12" y2="12.01"></line>
+            </svg>
+            Lancer l'Analyse
+        </button>
+    </div>
+
+    <!-- Results Area -->
+    <div id="results-area" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Chart -->
+            <div
+                class="lg:col-span-2 rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm shadow-lg">
+                <canvas id="predictionChart" height="300"></canvas>
+            </div>
+
+            <!-- Analysis Card -->
+            <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm shadow-lg">
+                <h3 class="font-semibold text-white mb-4">Analyse Technique</h3>
+
+                <div class="space-y-6">
+                    <div>
+                        <div class="text-sm text-slate-400 mb-1">Tendance Prédite (7 jours)</div>
+                        <div id="trend-indicator" class="text-2xl font-bold flex items-center gap-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-slate-400 mb-1">Indice de Confiance</div>
+                        <div class="w-full bg-slate-700 rounded-full h-2.5 mb-1">
+                            <div id="confidence-bar" class="bg-indigo-500 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                        <div id="confidence-text" class="text-right text-xs text-indigo-400">0%</div>
+                    </div>
+
+                    <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                        <div class="text-indigo-300 text-sm font-medium mb-1">Recommandation IA</div>
+                        <p id="recommendation-text" class="text-slate-300 text-sm leading-relaxed">
+                            En attente de l'analyse...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="hidden py-20 text-center">
+        <div class="inline-block relative w-20 h-20">
+            <div class="absolute top-0 left-0 w-full h-full border-4 border-indigo-500/30 rounded-full"></div>
+            <div
+                class="absolute top-0 left-0 w-full h-full border-4 border-indigo-500 rounded-full border-t-transparent animate-spin">
+            </div>
+        </div>
+        <p class="text-indigo-300 mt-4 animate-pulse">L'IA analyse les patterns...</p>
+    </div>
+</div>
+
+<script>
+    let chartInstance = null;
+
+    async function runPrediction() {
+        const coinId = document.getElementById('asset-select').value;
+        const resultsArea = document.getElementById('results-area');
+        const loadingState = document.getElementById('loading-state');
+
+        resultsArea.classList.add('hidden');
+        loadingState.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`/api/predict/${coinId}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert('Erreur: ' + data.error);
+                return;
+            }
+
+            displayResults(data);
+            loadingState.classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+        } catch (e) {
+            console.error(e);
+            loadingState.classList.add('hidden');
+            alert("Erreur lors de l'analyse");
+        }
+    }
+
+    function displayResults(data) {
+        // Update Indicators
+        const trendEl = document.getElementById('trend-indicator');
+        const isUp = data.trend === 'up';
+
+        trendEl.innerHTML = isUp
+            ? '<span class="text-green-400">Haussier ↗</span>'
+            : '<span class="text-red-400">Baissier ↘</span>';
+
+        document.getElementById('confidence-bar').style.width = data.confidence + '%';
+        document.getElementById('confidence-text').textContent = data.confidence + '%';
+
+        const recText = isUp
+            ? `Le modèle détecte une tendance haussière solide sur ${data.future_dates.length} jours. Les indicateurs suggèrent une opportunité d'achat potentiel.`
+            : `Le modèle prévoit une correction à court terme. La prudence est recommandée, envisagez une prise de profits partielle.`;
+        document.getElementById('recommendation-text').textContent = recText;
+
+        // Render Chart
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+
+        if (chartInstance) chartInstance.destroy();
+
+        const historicalLabels = data.historical_dates;
+        const futureLabels = data.future_dates;
+        const allLabels = [...historicalLabels, ...futureLabels];
+
+        // Pad historical data with nulls for future
+        const historicalPoints = [...data.historical_prices, ...Array(futureLabels.length).fill(null)];
+        // Pad prediction data with nulls for history (align last point)
+        const lastHistPrice = data.historical_prices[data.historical_prices.length - 1];
+        const predictionPoints = Array(historicalLabels.length - 1).fill(null);
+        predictionPoints.push(lastHistPrice); // Connect lines
+        predictionPoints.push(...data.predicted_prices);
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: 'Historique',
+                        data: historicalPoints,
+                        borderColor: '#6366f1', // Indigo
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Prédiction IA',
+                        data: predictionPoints,
+                        borderColor: isUp ? '#10b981' : '#f43f5e', // Green or Red
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1' } }
+                },
+                scales: {
+                    y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 10 } }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

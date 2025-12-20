@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block header %}Simulateur d'Investissement{% endblock %}
+
+{% block content %}
+<div x-data="simulatorApp()" class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1
+                    class="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Simulateur d'Investissement
+                </h1>
+                <p class="text-slate-400 text-lg">
+                    Simulez vos investissements avec les cours en temps réel
+                </p>
+            </div>
+            <button x-show="!showForm" @click="showForm = true"
+                class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nouvelle Simulation
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Capital Simulé -->
+            <div class="bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    <span class="text-slate-300">Capital Simulé</span>
+                </div>
+                <div class="text-3xl font-bold text-white" x-text="formatCurrency(totalInvested)"></div>
+                <p class="text-sm text-blue-400 mt-1" x-text="activeSimulations.length + ' simulations actives'"></p>
+            </div>
+
+            <!-- Valeur Actuelle -->
+            <div class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                    </svg>
+                    <span class="text-slate-300">Valeur Actuelle</span>
+                </div>
+                <div class="text-3xl font-bold text-white" x-text="formatCurrency(totalValue)"></div>
+                <p class="text-sm text-purple-400 mt-1">Valeur du portefeuille simulé</p>
+            </div>
+
+            <!-- P&L Total -->
+            <div class="p-6 rounded-xl border"
+                :class="totalPL >= 0 ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30' : 'bg-gradient-to-br from-red-500/20 to-rose-500/20 border-red-500/30'">
+                <div class="flex items-center gap-3 mb-2">
+                    <template x-if="totalPL >= 0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-400" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                            <polyline points="17 6 23 6 23 12" />
+                        </svg>
+                    </template>
+                    <template x-if="totalPL < 0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-400" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                            <polyline points="17 18 23 18 23 12" />
+                        </svg>
+                    </template>
+                    <span class="text-slate-300">P&L Total</span>
+                </div>
+                <div class="text-3xl font-bold" :class="totalPL >= 0 ? 'text-green-400' : 'text-red-400'"
+                    x-text="(totalPL >= 0 ? '+' : '') + formatCurrency(totalPL)">
+                </div>
+                <p class="text-sm mt-1" :class="totalPL >= 0 ? 'text-green-400' : 'text-red-400'"
+                    x-text="totalInvested > 0 ? ((totalPL / totalInvested) * 100).toFixed(2) + '%' : '0%'"></p>
+            </div>
+        </div>
+
+        <!-- Add Form -->
+        <div x-show="showForm" x-transition
+            class="mb-8 bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6">
+            <h3 class="font-semibold text-white mb-4">Nouvelle Simulation</h3>
+            <form action="/add_simulation" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Nom de la simulation</label>
+                    <input type="text" name="name" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="Ex: Bitcoin Long Term">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Symbole</label>
+                    <input type="text" name="symbol" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="BTC">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Investissement Initial (€)</label>
+                    <input type="number" step="0.01" name="investment" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="1000">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Prix d'entrée (€)</label>
+                    <input type="number" step="0.0000001" name="entry_price" required
+                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500"
+                        placeholder="Prix à l'achat">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Type d'actif</label>
+                    <select name="asset_type"
+                        class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500">
+                        <option value="crypto">Crypto</option>
+                        <option value="stock">Action</option>
+                        <option value="real_estate">Immobilier</option>
+                        <option value="commodity">Matières Premières</option>
+                        <option value="etf">ETF</option>
+                        <option value="forex">Forex</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+                    <button type="button" @click="showForm = false"
+                        class="px-4 py-2 text-slate-400 hover:text-white transition-colors">Annuler</button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-medium transition-colors">Créer
+                        Simulation</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Simulations Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <template x-for="sim in simulations" :key="sim.id">
+                <div
+                    class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6 hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg"
+                                :class="sim.asset_type === 'crypto' ? 'bg-orange-500/20 text-orange-500' : 'bg-blue-500/20 text-blue-500'">
+                                <span x-text="sim.symbol.substring(0, 1)"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white" x-text="sim.name"></h3>
+                                <div class="flex items-center gap-2 text-sm text-slate-400">
+                                    <span x-text="sim.symbol"></span>
+                                    <span>•</span>
+                                    <span class="capitalize" x-text="sim.asset_type"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="updatePrice(sim.id)"
+                                class="p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-800"
+                                title="Actualiser le prix">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M23 4v6h-6" />
+                                    <path d="M1 20v-6h6" />
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                                </svg>
+                            </button>
+                            <a :href="'/delete_simulation/' + sim.id"
+                                class="p-2 text-slate-400 hover:text-red-400 rounded-full hover:bg-slate-800"
+                                onclick="return confirm('Supprimer cette simulation ?')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    <line x1="10" y1="11" x2="10" y2="17" />
+                                    <line x1="14" y1="11" x2="14" y2="17" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="p-3 bg-slate-800/30 rounded-lg">
+                            <div class="text-xs text-slate-400 mb-1">Investissement</div>
+                            <div class="font-mono text-white" x-text="formatCurrency(sim.initial_investment)"></div>
+                        </div>
+                        <div class="p-3 bg-slate-800/30 rounded-lg">
+                            <div class="text-xs text-slate-400 mb-1">Valeur Actuelle</div>
+                            <div class="font-mono font-bold" x-text="formatCurrency(sim.current_value)"></div>
+                        </div>
+                        <div class="p-3 bg-slate-800/30 rounded-lg">
+                            <div class="text-xs text-slate-400 mb-1">Prix Entrée</div>
+                            <div class="font-mono text-white"
+                                x-text="(sim.initial_investment / sim.quantity).toFixed(2)"></div>
+                        </div>
+                        <div class="p-3 bg-slate-800/30 rounded-lg">
+                            <div class="text-xs text-slate-400 mb-1">Prix Actuel</div>
+                            <div class="font-mono text-white" x-text="sim.current_price.toFixed(2)"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                        <div class="text-sm text-slate-400">Profit/Perte</div>
+                        <div class="text-right">
+                            <div class="font-bold text-lg"
+                                :class="sim.profit_loss >= 0 ? 'text-green-400' : 'text-red-400'"
+                                x-text="(sim.profit_loss >= 0 ? '+' : '') + formatCurrency(sim.profit_loss)">
+                            </div>
+                            <div class="text-xs" :class="sim.profit_loss >= 0 ? 'text-green-400' : 'text-red-400'"
+                                x-text="sim.initial_investment > 0 ? ((sim.profit_loss / sim.initial_investment) * 100).toFixed(2) + '%' : '0%'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="simulations.length === 0"
+            class="bg-slate-900/50 border border-slate-800 rounded-xl p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-slate-600 mx-auto mb-4" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            <p class="text-slate-400">Aucune simulation</p>
+            <p class="text-slate-500 text-sm mt-2">Créez votre première simulation pour tester vos stratégies</p>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="simulations-data">
+    {{ simulations | tojson | safe }}
+</script>
+<script>
+    function simulatorApp() {
+        return {
+            showForm: false,
+            simulations: (() => {
+                const script = document.getElementById('simulations-data');
+                return script ? JSON.parse(script.textContent) : [];
+            })(),
+
+            get activeSimulations() {
+                return this.simulations.filter(s => s.status === 'active');
+            },
+
+            get totalInvested() {
+                return this.activeSimulations.reduce((sum, s) => sum + s.initial_investment, 0);
+            },
+
+            get totalValue() {
+                return this.activeSimulations.reduce((sum, s) => sum + (s.current_value || s.initial_investment), 0);
+            },
+
+            get totalPL() {
+                return this.totalValue - this.totalInvested;
+            },
+
+            formatCurrency(value) {
+                return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(value);
+            },
+
+            async updatePrice(id) {
+                try {
+                    // In a real generic app we would trigger a backend update
+                    // For now, let's just reload the page which triggers backend logic if we put it there
+                    // Or better, fetch an endpoint
+                    const res = await fetch('/update_simulation_price/' + id);
+                    if (res.ok) window.location.reload();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

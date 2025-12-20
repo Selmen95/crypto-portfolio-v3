@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio DSBA - Gestion de Patrimoine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            750: '#2d3748', // Custom neat slate
+                            850: '#1a202c',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0D0D11;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body class="bg-[#0D0D11] text-white">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-[#0D0D11]/80 backdrop-blur-sm border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div
+                    class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M2 7L12 12L22 7" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M12 12V22" stroke="white" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="text-xl font-bold">Portfolio DSBA</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
+                <a href="{{ url_for('trading') }}" class="hover:text-white transition-colors">Trading</a>
+                <a href="{{ url_for('markets') }}" class="hover:text-white transition-colors">Marchés</a>
+                <a href="{{ url_for('products') }}" class="hover:text-white transition-colors">Produits</a>
+                <a href="{{ url_for('analytics') }}" class="hover:text-white transition-colors">Analytique</a>
+                <a href="{{ url_for('learn') }}" class="hover:text-white transition-colors">Apprendre</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="{{ url_for('onboarding') }}"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Profil
+                    Investisseur</a>
+                <a href="{{ url_for('onboarding') }}"
+                    class="text-sm font-medium bg-white text-black px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
+                    Commencer
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="pt-32 pb-20 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <!-- Left Side -->
+            <div class="text-center md:text-left">
+                <div
+                    class="inline-flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-sm font-medium mb-6 border border-indigo-500/20">
+                    <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+                    Gestion de Patrimoine Globale
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-bold leading-tight mb-6">
+                    Investissez dans<br />
+                    <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">tout ce
+                        qui compte</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-md mx-auto md:mx-0 mb-8">
+                    Crypto, Immobilier, Actions, Matières Premières. Une seule plateforme pour visualiser, analyser et
+                    optimiser l'ensemble de votre patrimoine.
+                </p>
+                <div class="flex items-center justify-center md:justify-start gap-4 mb-12">
+                    <a href="{{ url_for('dashboard') }}"
+                        class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white rounded-lg font-medium transition-all transform hover:scale-105">
+                        Gérer mon Portfolio
+                    </a>
+                </div>
+                <div class="flex justify-center md:justify-start gap-8">
+                    <div>
+                        <p class="text-3xl font-bold">Tout</p>
+                        <p class="text-sm text-slate-400">Vos Actifs</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold">1</p>
+                        <p class="text-sm text-slate-400">Dashboard</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold">360°</p>
+                        <p class="text-sm text-slate-400">Analyse</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side (Simulated Components) -->
+            <div class="space-y-6">
+
+                <!-- Asset Classes -->
+                <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6 shadow-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-white">Classes d'Actifs</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-800/50 p-4 rounded-lg flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M3 21h18" />
+                                    <path d="M5 21V7l8-4 8 4v14" />
+                                    <path d="M17 21v-8H7v8" />
+                                    <path d="M9 9h1" />
+                                    <path d="M9 13h1" />
+                                    <path d="M9 17h1" />
+                                    <path d="M14 9h1" />
+                                    <path d="M14 13h1" />
+                                    <path d="M14 17h1" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-white">Immo</div>
+                                <div class="text-xs text-slate-400">Appartements, SCPI</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="12" y1="1" x2="12" y2="23" />
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-white">Actions</div>
+                                <div class="text-xs text-slate-400">ETFs, Titres vifs</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                                    <line x1="12" y1="18" x2="12" y2="22" />
+                                    <line x1="12" y1="2" x2="12" y2="6" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-white">Crypto</div>
+                                <div class="text-xs text-slate-400">BTC, ETH, Altcoins</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="8" r="7" />
+                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                                    <circle cx="12" cy="8" r="3" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium text-white">Or & MP</div>
+                                <div class="text-xs text-slate-400">Métaux précieux</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="py-20 px-6 bg-slate-900/30">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div
+                class="bg-slate-900/50 border border-slate-800 p-6 text-center rounded-xl hover:border-slate-700 transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-purple-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Analytique Avancée</h3>
+                <p class="text-slate-400 mb-4">Graphiques professionnels, indicateurs techniques et insights de marché
+                    pour prendre des décisions éclairées.</p>
+                <a href="{{ url_for('dashboard') }}"
+                    class="font-semibold text-sm flex items-center justify-center gap-1 hover:text-purple-400 transition-colors text-white">
+                    En savoir plus <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Feature 2 -->
+            <div
+                class="bg-slate-900/50 border border-slate-800 p-6 text-center rounded-xl hover:border-slate-700 transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Trading Vocal</h3>
+                <p class="text-slate-400 mb-4">Exécutez des trades par commande vocale avec notre assistant IA pour une
+                    gestion de portefeuille mains-libres.</p>
+                <a href="{{ url_for('guide_page') }}"
+                    class="font-semibold text-sm flex items-center justify-center gap-1 hover:text-purple-400 transition-colors text-white">
+                    En savoir plus <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Feature 3 -->
+            <div
+                class="bg-slate-900/50 border border-slate-800 p-6 text-center rounded-xl hover:border-slate-700 transition-colors">
+                <div
+                    class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-green-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Sécurité Bancaire</h3>
+                <p class="text-slate-400 mb-4">Vos actifs sont protégés par des mesures de sécurité institutionnelles,
+                    incluant stockage à froid et assurance.</p>
+                <a href="{{ url_for('profile_page') }}"
+                    class="font-semibold text-sm flex items-center justify-center gap-1 hover:text-purple-400 transition-colors text-white">
+                    En savoir plus <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="white" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M2 7L12 12L22 7" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M12 12V22" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold">Portfolio DSBA</span>
+                </div>
+                <p class="text-sm text-slate-400">La plateforme de trading de cryptomonnaies la plus avancée pour les
+                    professionnels et institutions du monde entier.</p>
+            </div>
+            <div class="md:col-start-2">
+                <h4 class="font-semibold mb-4 text-white">Plateforme</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white">Spot Trading</a></li>
+                    <li><a href="#" class="hover:text-white">Futures Trading</a></li>
+                    <li><a href="#" class="hover:text-white">Options Trading</a></li>
+                    <li><a href="#" class="hover:text-white">NFT Marketplace</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4 text-white">Support</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white">Centre d'aide</a></li>
+                    <li><a href="#" class="hover:text-white">Documentation API</a></li>
+                    <li><a href="#" class="hover:text-white">Guides de Trading</a></li>
+                    <li><a href="#" class="hover:text-white">Statut Système</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4 text-white">Entreprise</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li><a href="#" class="hover:text-white">À propos</a></li>
+                    <li><a href="#" class="hover:text-white">Carrières</a></li>
+                    <li><a href="#" class="hover:text-white">Confidentialité</a></li>
+                    <li><a href="#" class="hover:text-white">Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-slate-500 flex justify-between items-center">
+                <p>&copy; 2024 Portfolio DSBA. Tous droits réservés.</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hover:text-white">Français</a>
+                    <a href="#" class="hover:text-white">V3.0</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

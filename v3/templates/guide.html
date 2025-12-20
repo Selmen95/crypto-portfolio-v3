@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block header %}Guide & Tutoriels{% endblock %}
+
+{% block content %}
+<div x-data="guideApp()" class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Guide & Tutoriels
+            </h1>
+            <p class="text-slate-400">
+                Apprenez à maximiser vos profits avec nos guides complets
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Quick Start -->
+                <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="font-semibold text-white mb-4">Démarrage Rapide</h3>
+                    <div class="space-y-3">
+                        <template x-for="item in quickStart" :key="item.step">
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-800/30">
+                                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                    x-text="item.step"></div>
+                                <div class="flex-1">
+                                    <div class="font-medium text-white text-sm" x-text="item.title"></div>
+                                    <div class="text-xs text-slate-400" x-text="item.description"></div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded border border-slate-600 text-slate-400 text-xs"
+                                    x-text="item.time"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Menu -->
+                <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="font-semibold text-white mb-4">Parcours d'apprentissage</h3>
+                    <div class="space-y-2">
+                        <template x-for="tutorial in tutorials" :key="tutorial.id">
+                            <button @click="activeTab = tutorial.id"
+                                class="w-full flex items-center gap-3 p-3 rounded-lg transition-colors"
+                                :class="activeTab === tutorial.id ? 'bg-green-500/20 text-green-400' : 'hover:bg-slate-800/50 text-slate-300'">
+                                <span x-html="tutorial.icon" class="w-5 h-5"></span>
+                                <span class="font-medium" x-text="tutorial.title"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-auto" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Current Tutorial -->
+                <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span x-html="currentTutorial.icon" class="w-6 h-6 text-white"></span>
+                        <h2 class="text-lg font-semibold text-white" x-text="currentTutorial.title"></h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <template x-for="(lesson, index) in currentTutorial.lessons" :key="index">
+                            <div
+                                class="flex items-center gap-4 p-4 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 transition-colors">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                                    :class="lesson.completed ? 'bg-green-500' : 'bg-slate-600'">
+                                    <template x-if="lesson.completed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    </template>
+                                    <template x-if="!lesson.completed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <polygon points="10 8 16 12 10 16 10 8" />
+                                        </svg>
+                                    </template>
+                                </div>
+
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-white" x-text="lesson.title"></h3>
+                                    <p class="text-sm text-slate-400" x-text="lesson.description"></p>
+                                </div>
+                                <div class="text-sm text-slate-400" x-text="lesson.duration"></div>
+                                <button class="text-sm px-3 py-1 rounded transition-colors"
+                                    :class="lesson.completed ? 'border border-slate-600 text-slate-300' : 'bg-green-600 hover:bg-green-700 text-white'"
+                                    x-text="lesson.completed ? 'Revoir' : 'Démarrer'"></button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                        <h2 class="text-lg font-semibold text-white">Questions Fréquentes</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <template x-for="(faq, index) in faqs" :key="index">
+                            <div class="p-4 rounded-lg bg-slate-800/30">
+                                <h3 class="font-semibold text-white mb-2" x-text="faq.question"></h3>
+                                <p class="text-slate-400" x-text="faq.answer"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function guideApp() {
+        return {
+            activeTab: 'getting-started',
+            quickStart: [
+                { step: 1, title: "Créer un Compte", description: "Inscription via email", time: "2 min" },
+                { step: 2, title: "Vérifier Identité", description: "Processus KYC", time: "5 min" },
+                { step: 3, title: "Déposer Fonds", description: "Crypto ou Fiat", time: "10 min" },
+                { step: 4, title: "Configurer Bot", description: "Première stratégie", time: "15 min" },
+                { step: 5, title: "Démarrer", description: "Activer et suivre", time: "5 min" }
+            ],
+            tutorials: [
+                {
+                    id: 'getting-started',
+                    title: 'Pour Commencer',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>',
+                    lessons: [
+                        { title: "Configuration du compte", duration: "5 min", completed: true, description: "Création et vérification" },
+                        { title: "Premier dépôt & Wallet", duration: "10 min", completed: true, description: "Ajouter des fonds" },
+                        { title: "Aperçu du Dashboard", duration: "8 min", completed: false, description: "Comprendre l'interface" },
+                        { title: "Premier Trade", duration: "12 min", completed: false, description: "Exécuter un trade manuel" }
+                    ]
+                },
+                {
+                    id: 'trading-strategies',
+                    title: 'Stratégies Trading',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+                    lessons: [
+                        { title: "Moyennes Mobiles", duration: "15 min", completed: false, description: "Croisement SMA/EMA" },
+                        { title: "RSI & Rebond", duration: "12 min", completed: false, description: "Indicateurs de retournement" },
+                        { title: "Gestion du Risque", duration: "20 min", completed: false, description: "Stop loss et taille de position" },
+                        { title: "Backtesting", duration: "18 min", completed: false, description: "Tester sur données passées" }
+                    ]
+                },
+                {
+                    id: 'auto-trading',
+                    title: 'Trading Automatique',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+                    lessons: [
+                        { title: "Configurer le Bot", duration: "10 min", completed: false, description: "Lancer votre premier bot" },
+                        { title: "Paramètres Stratégie", duration: "15 min", completed: false, description: "Optimiser les réglages" },
+                        { title: "Suivi & Ajustement", duration: "12 min", completed: false, description: "Monitorer la performance" },
+                        { title: "Auto Cashout", duration: "8 min", completed: false, description: "Sécuriser les profits" }
+                    ]
+                },
+                {
+                    id: 'advanced',
+                    title: 'Fonctions Avancées',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+                    lessons: [
+                        { title: "API Integration", duration: "25 min", completed: false, description: "Connecter des outils externes" },
+                        { title: "Indicateurs Custom", duration: "30 min", completed: false, description: "Créer ses propres indicateurs" },
+                        { title: "Optimisation Portfolio", duration: "20 min", completed: false, description: "Stratégies d'allocation" },
+                        { title: "Rapport Fiscal", duration: "15 min", completed: false, description: "Générer les documents fiscaux" }
+                    ]
+                }
+            ],
+            faqs: [
+                { question: "Le trading auto est-il sûr ?", answer: "Oui, notre plateforme utilise une gestion avancée des risques et vous gardez le contrôle total." },
+                { question: "Quel est le dépôt minimum ?", answer: "Vous pouvez commencer avec 50$. Nous recommandons 500-1000$ pour une performance optimale." },
+                { question: "Combien puis-je gagner ?", answer: "Les rendements varient selon le marché. Historiquement 15-45% par an, mais les performances passées ne garantissent pas l'avenir." },
+                { question: "Puis-je retirer mes fonds ?", answer: "Oui, à tout moment (24/7). Les retraits sont traités en 1-24h selon la blockchain." }
+            ],
+
+            get currentTutorial() {
+                return this.tutorials.find(t => t.id === this.activeTab);
+            }
+        }
+    }
+</script>
+{% endblock %}

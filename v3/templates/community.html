@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block header %}Communauté{% endblock %}
+
+{% block content %}
+<div x-data="communityApp()" class="space-y-8">
+    <!-- Header -->
+    <div class="space-y-1">
+        <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="text-indigo-400">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Communauté
+        </h2>
+        <p class="text-sm text-zinc-400">Échangez avec d'autres investisseurs et partagez vos analyses</p>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Feed -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Create Post -->
+            <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-6">
+                <form @submit.prevent="submitPost">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                {{ user_profile.full_name[0] if user_profile else 'M' }}
+                            </div>
+                        </div>
+                        <div class="flex-grow space-y-3">
+                            <textarea x-model="newPostContent"
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+                                rows="3" placeholder="Partagez vos idées, analyses ou questions..."></textarea>
+                            <div class="flex justify-between items-center">
+                                <div class="flex gap-2">
+                                    <button type="button"
+                                        class="text-slate-400 hover:text-indigo-400 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <polyline points="21 15 16 10 5 21" />
+                                        </svg>
+                                    </button>
+                                    <button type="button"
+                                        class="text-slate-400 hover:text-indigo-400 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19" />
+                                            <line x1="5" y1="12" x2="19" y2="12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <button type="submit"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                    :disabled="!newPostContent.trim()">
+                                    Publier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Feed Filters -->
+            <div class="flex gap-4 border-b border-slate-800 pb-2">
+                <button class="text-sm font-medium text-white border-b-2 border-indigo-500 pb-2">Tout</button>
+                <button
+                    class="text-sm font-medium text-slate-400 hover:text-white pb-2 transition-colors">Analyses</button>
+                <button
+                    class="text-sm font-medium text-slate-400 hover:text-white pb-2 transition-colors">Crypto</button>
+                <button
+                    class="text-sm font-medium text-slate-400 hover:text-white pb-2 transition-colors">Immobilier</button>
+            </div>
+
+            <!-- Posts List -->
+            <template x-for="post in posts" :key="post.id">
+                <div
+                    class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-6 hover:border-slate-700 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold border border-slate-700">
+                                <span x-text="post.author_name.charAt(0)"></span>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-medium" x-text="post.author_name"></h4>
+                                <div class="text-xs text-slate-400" x-text="formatDate(post.date)"></div>
+                            </div>
+                        </div>
+                        <button class="text-slate-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1" />
+                                <circle cx="19" cy="12" r="1" />
+                                <circle cx="5" cy="12" r="1" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p class="text-slate-300 mb-4 whitespace-pre-wrap" x-text="post.content"></p>
+
+                    <div class="flex items-center gap-6 text-sm text-slate-400 border-t border-slate-800 pt-4">
+                        <button @click="likePost(post.id)"
+                            class="flex items-center gap-2 hover:text-pink-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            <span x-text="post.likes"></span>
+                        </button>
+                        <button class="flex items-center gap-2 hover:text-indigo-400 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                            </svg>
+                            <span x-text="post.comments.length"></span>
+                        </button>
+                        <button class="flex items-center gap-2 hover:text-green-400 transition-colors ml-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                                <polyline points="16 6 12 2 8 6" />
+                                <line x1="12" y1="2" x2="12" y2="15" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Right Column: Info & Leaderboard -->
+        <div class="space-y-6">
+
+            <!-- Community Stats -->
+            <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-6">
+                <h3 class="font-semibold text-white mb-4">Statistiques</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-white">12.5k</div>
+                        <div class="text-xs text-slate-400">Membres</div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                        <div class="text-2xl font-bold text-indigo-400">24/7</div>
+                        <div class="text-xs text-slate-400">Activité</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Contributors -->
+            <div class="rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm p-6">
+                <h3 class="font-semibold text-white mb-4">Top Contributeurs</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-yellow-500/20 text-yellow-500 flex items-center justify-center font-bold text-xs ring-1 ring-yellow-500/50">
+                            1</div>
+                        <img src="https://ui-avatars.com/api/?name=Alex+M&background=random"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-white">Alex M.</div>
+                            <div class="text-xs text-slate-400">Crypto Expert</div>
+                        </div>
+                        <div class="text-xs font-bold text-green-400">+12%</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">
+                            2</div>
+                        <img src="https://ui-avatars.com/api/?name=Sarah+K&background=random"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-white">Sarah K.</div>
+                            <div class="text-xs text-slate-400">Real Estate</div>
+                        </div>
+                        <div class="text-xs font-bold text-green-400">+8%</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">
+                            3</div>
+                        <img src="https://ui-avatars.com/api/?name=Tom+D&background=random"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-white">Tom D.</div>
+                            <div class="text-xs text-slate-400">Stocks</div>
+                        </div>
+                        <div class="text-xs font-bold text-green-400">+5%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggestion Box -->
+            <div class="rounded-xl border border-slate-800 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 p-6">
+                <h3 class="font-semibold text-white mb-2">Suggérer une fonctionnalité</h3>
+                <p class="text-xs text-slate-400 mb-4">Aidez-nous à améliorer la plateforme.</p>
+                <button
+                    class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm font-medium transition-colors border border-slate-700">Fair
+                    une suggestion</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script id="posts-data" type="application/json">
+    {{ posts | tojson }}
+</script>
+
+<script>
+    function communityApp() {
+        const postsData = JSON.parse(document.getElementById('posts-data').textContent);
+        return {
+            newPostContent: '',
+            posts: postsData,
+
+            async submitPost() {
+                if (!this.newPostContent.trim()) return;
+
+                try {
+                    const response = await fetch('/add_post', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: this.newPostContent })
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Erreur lors de la publication');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Erreur réseau');
+                }
+            },
+
+            async likePost(postId) {
+                try {
+                    // Optimistic UI update could happen here
+                    const response = await fetch('/like_post/' + postId, { method: 'POST' });
+                    if (response.ok) {
+                        window.location.reload(); // Simple reload for now
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+
+            formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return new Intl.DateTimeFormat('fr-FR', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                }).format(date);
+            }
+        }
+    }
+</script>
+{% endblock %}

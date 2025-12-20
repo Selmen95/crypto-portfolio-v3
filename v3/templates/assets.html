@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block header %}Mes Actifs{% endblock %}
+
+{% block content %}
+<div x-data="assetsManager()" class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header & Add Button -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1
+                    class="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Mes Actifs
+                </h1>
+                <p class="text-slate-400 text-lg">
+                    Gérez tous vos investissements en un seul endroit
+                </p>
+            </div>
+            <button @click="openForm()"
+                class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 shadow-lg text-white rounded-md font-medium transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                </svg>
+                Nouvel Actif
+            </button>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="mb-6 flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" x-model="searchTerm" placeholder="Rechercher un actif..."
+                    class="w-full pl-10 h-10 bg-slate-800/50 border border-slate-700 rounded-md text-white focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-slate-500">
+            </div>
+
+            <select x-model="filterType"
+                class="h-10 bg-slate-800/50 border border-slate-700 rounded-md text-white px-3 focus:outline-none focus:border-indigo-500">
+                <option value="all">Tous les types</option>
+                <option value="stock">Actions</option>
+                <option value="crypto">Crypto</option>
+                <option value="real_estate">Immobilier</option>
+                <option value="commodity">Matières Premières</option>
+                <option value="bond">Obligations</option>
+                <option value="etf">ETF</option>
+                <option value="other">Autre</option>
+            </select>
+
+            <select x-model="sortBy"
+                class="h-10 bg-slate-800/50 border border-slate-700 rounded-md text-white px-3 focus:outline-none focus:border-indigo-500">
+                <option value="name">Nom</option>
+                <option value="value">Valeur</option>
+                <option value="performance">Performance</option>
+            </select>
+        </div>
+
+        <!-- Assets List -->
+        <div class="grid gap-3">
+            <template x-for="asset in filteredAssets" :key="asset.id">
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-800/30 border border-slate-800/50 rounded-xl hover:bg-slate-800/50 transition-all gap-4">
+                    <div class="flex flex-col gap-2 flex-1">
+                        <div class="flex items-center gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-white font-semibold text-lg"
+                                        x-text="asset.name || asset.symbol"></span>
+                                    <span x-show="asset.symbol" class="text-slate-400 text-sm"
+                                        x-text="'(' + asset.symbol + ')'"></span>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs px-2 py-0.5 rounded border"
+                                        :class="getTypeColor(asset.asset_type)"
+                                        x-text="getTypeLabel(asset.asset_type)"></span>
+                                    <span x-show="asset.broker" class="text-xs text-slate-500"
+                                        x-text="asset.broker"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 text-sm text-slate-400">
+                            <span
+                                x-text="asset.quantity + ' × ' + formatCurrency(asset.current_price || asset.buy_price)"></span>
+                            <span x-show="asset.location" class="flex items-center gap-1">📍 <span
+                                    x-text="asset.location"></span></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div class="text-white font-semibold text-lg" x-text="formatCurrency(asset.value)"></div>
+                            <div class="flex items-center gap-1 justify-end text-sm"
+                                :class="asset.pl >= 0 ? 'text-green-400' : 'text-red-400'">
+                                <svg x-show="asset.pl >= 0" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                                    <polyline points="16 7 22 7 22 13" />
+                                </svg>
+                                <svg x-show="asset.pl < 0" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="22 17 13.5 8.5 8.5 13.5 2 7" />
+                                    <polyline points="16 17 22 17 22 11" />
+                                </svg>
+                                <span x-text="(asset.pl >= 0 ? '+' : '') + asset.pl_percent.toFixed(2) + '%'"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button @click="editAsset(asset)"
+                                class="p-2 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 rounded-md transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                </svg>
+                            </button>
+                            <a :href="'/delete_asset/' + asset.id"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet actif ?')"
+                                class="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-md transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M3 6h18" />
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div x-show="filteredAssets.length === 0" class="text-center py-12 text-slate-400">
+                <p>Aucun actif trouvé</p>
+            </div>
+        </div>
+
+        <!-- Asset Form Modal -->
+        <div x-show="showModal" style="display: none;"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            <div class="bg-[#1e1e24] border border-slate-800 rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden"
+                @click.away="closeForm()">
+                <div class="flex items-center justify-between p-6 border-b border-slate-800">
+                    <h3 class="text-xl font-semibold text-white"
+                        x-text="editingAsset ? 'Modifier l\'Actif' : 'Nouvel Actif'"></h3>
+                    <button @click="closeForm()" class="text-slate-400 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18" />
+                            <path d="m6 6 12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form action="{{ url_for('save_asset') }}" method="POST" class="p-6 space-y-6">
+                    <input type="hidden" name="id" x-model="formData.id">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2 relative">
+                            <label class="text-sm font-medium text-slate-300">Nom de l'actif *</label>
+                            <input name="name" x-model="formData.name" @input="filterSuggestions()" required
+                                placeholder="ex: Apple Inc."
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+
+                            <!-- Autocomplete Dropdown -->
+                            <div x-show="showSuggestions && suggestions.length > 0"
+                                class="absolute z-10 w-full bg-[#1e1e24] border border-slate-700 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto"
+                                @click.away="showSuggestions = false">
+                                <ul class="py-1">
+                                    <template x-for="asset in suggestions" :key="asset.symbol">
+                                        <li @click="selectSuggestion(asset)"
+                                            class="px-3 py-2 hover:bg-slate-800 cursor-pointer flex justify-between items-center transition-colors">
+                                            <div class="flex flex-col">
+                                                <span class="text-white font-medium" x-text="asset.name"></span>
+                                                <span class="text-xs text-slate-400" x-text="asset.symbol"></span>
+                                            </div>
+                                            <span class="text-xs px-2 py-0.5 rounded border"
+                                                :class="getTypeColor(asset.type)"
+                                                x-text="getTypeLabel(asset.type)"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Symbole</label>
+                            <input name="symbol" x-model="formData.symbol" placeholder="ex: AAPL"
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 uppercase">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Type d'actif *</label>
+                        <select name="asset_type" x-model="formData.asset_type"
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                            <option value="stock">Action</option>
+                            <option value="crypto">Cryptomonnaie</option>
+                            <option value="real_estate">Immobilier</option>
+                            <option value="commodity">Matière Première</option>
+                            <option value="bond">Obligation</option>
+                            <option value="etf">ETF</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Quantité *</label>
+                            <input type="number" step="any" name="quantity" x-model="formData.quantity" required
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Prix d'achat *</label>
+                            <input type="number" step="any" name="purchase_price" x-model="formData.buy_price" required
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Date d'achat</label>
+                            <input type="date" name="purchase_date" x-model="formData.purchase_date"
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Devise</label>
+                            <input name="currency" x-model="formData.currency" placeholder="USD"
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div x-show="formData.asset_type === 'real_estate'" class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Localisation</label>
+                        <input name="location" x-model="formData.location" placeholder="ex: Paris, France"
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Courtier / Plateforme</label>
+                        <input name="broker" x-model="formData.broker" placeholder="ex: Interactive Brokers"
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Notes</label>
+                        <textarea name="notes" x-model="formData.notes" placeholder="Notes personnelles..."
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500 min-h-[100px]"></textarea>
+                    </div>
+
+                    <div class="flex gap-3 justify-end pt-4">
+                        <button type="button" @click="closeForm()"
+                            class="px-4 py-2 border border-slate-700 rounded-md text-slate-300 hover:bg-slate-800 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 rounded-md text-white font-medium transition-colors">
+                            <span x-text="editingAsset ? 'Mettre à jour' : 'Créer'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="assets-data">
+    {{ assets | tojson | safe }}
+</script>
+<script>
+    // Initialize assets outside to separate Jinja from logic
+    const assetsDataScript = document.getElementById('assets-data');
+    const RAW_ASSETS = assetsDataScript ? JSON.parse(assetsDataScript.textContent) : [];
+
+    function assetsManager() {
+        return {
+            assets: RAW_ASSETS || [],
+            commonAssets: [
+                // Stocks (Tech)
+                { name: "Apple Inc.", symbol: "AAPL", type: "stock" },
+                { name: "Microsoft Corp.", symbol: "MSFT", type: "stock" },
+                { name: "Alphabet Inc. (Google)", symbol: "GOOGL", type: "stock" },
+                { name: "Amazon.com Inc.", symbol: "AMZN", type: "stock" },
+                { name: "Tesla Inc.", symbol: "TSLA", type: "stock" },
+                { name: "NVIDIA Corp.", symbol: "NVDA", type: "stock" },
+                { name: "Meta Platforms", symbol: "META", type: "stock" },
+                { name: "Netflix Inc.", symbol: "NFLX", type: "stock" },
+                // Stocks (French/EU)
+                { name: "LVMH", symbol: "LVMH.PA", type: "stock" },
+                { name: "TotalEnergies", symbol: "TTE.PA", type: "stock" },
+                { name: "Sanofi", symbol: "SAN.PA", type: "stock" },
+                { name: "L'Oréal", symbol: "OR.PA", type: "stock" },
+                { name: "Airbus", symbol: "AIR.PA", type: "stock" },
+                { name: "BNP Paribas", symbol: "BNP.PA", type: "stock" },
+                { name: "Air Liquide", symbol: "AI.PA", type: "stock" },
+                // Crypto
+                { name: "Bitcoin", symbol: "BTC", type: "crypto" },
+                { name: "Ethereum", symbol: "ETH", type: "crypto" },
+                { name: "Solana", symbol: "SOL", type: "crypto" },
+                { name: "Ripple", symbol: "XRP", type: "crypto" },
+                { name: "Cardano", symbol: "ADA", type: "crypto" },
+                { name: "Binance Coin", symbol: "BNB", type: "crypto" },
+                { name: "Polkadot", symbol: "DOT", type: "crypto" },
+                // ETFs
+                { name: "S&P 500 ETF (Vanguard)", symbol: "VOO", type: "etf" },
+                { name: "S&P 500 ETF (SPDR)", symbol: "SPY", type: "etf" },
+                { name: "Nasdaq 100 ETF (Invesco)", symbol: "QQQ", type: "etf" },
+                { name: "MSCI World ETF (Amundi)", symbol: "CW8.PA", type: "etf" },
+                { name: "Vanguard Total World Stock", symbol: "VT", type: "etf" },
+                { name: "Gold ETF (GLD)", symbol: "GLD", type: "commodity" }
+            ],
+            suggestions: [],
+            showSuggestions: false,
+
+            searchTerm: '',
+            filterType: 'all',
+            sortBy: 'name',
+            showModal: false,
+            editingAsset: null,
+            formData: {
+                id: '', name: '', symbol: '', asset_type: 'stock',
+                quantity: '', buy_price: '', purchase_date: '',
+                currency: 'USD', notes: '', location: '', broker: ''
+            },
+
+            get filteredAssets() {
+                let result = this.assets.filter(asset => {
+                    const matchesSearch = (asset.name || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+                        (asset.symbol || '').toLowerCase().includes(this.searchTerm.toLowerCase());
+                    const matchesType = this.filterType === 'all' || asset.asset_type === this.filterType;
+                    return matchesSearch && matchesType;
+                });
+
+                return result.sort((a, b) => {
+                    if (this.sortBy === 'name') return (a.name || a.symbol || '').localeCompare(b.name || b.symbol || '');
+                    if (this.sortBy === 'value') return b.value - a.value;
+                    if (this.sortBy === 'performance') return b.pl_percent - a.pl_percent;
+                    return 0;
+                });
+            },
+
+            openForm() {
+                this.editingAsset = null;
+                this.resetForm();
+                this.showModal = true;
+            },
+
+            editAsset(asset) {
+                this.editingAsset = asset;
+                this.formData = {
+                    id: asset.id,
+                    name: asset.name,
+                    symbol: asset.symbol,
+                    asset_type: asset.asset_type,
+                    quantity: asset.quantity,
+                    buy_price: asset.buy_price,
+                    purchase_date: asset.purchase_date ? asset.purchase_date.split('T')[0] : '',
+                    currency: asset.currency,
+                    notes: asset.notes,
+                    location: asset.location,
+                    broker: asset.broker
+                };
+                this.showModal = true;
+            },
+
+            closeForm() {
+                this.showModal = false;
+                this.editingAsset = null;
+            },
+
+            resetForm() {
+                this.formData = {
+                    id: '', name: '', symbol: '', asset_type: 'stock',
+                    quantity: '', buy_price: '', purchase_date: new Date().toISOString().split('T')[0],
+                    currency: 'USD', notes: '', location: '', broker: ''
+                };
+                this.suggestions = [];
+                this.showSuggestions = false;
+            },
+
+            filterSuggestions() {
+                const query = this.formData.name.toLowerCase();
+                if (query.length < 2) {
+                    this.suggestions = [];
+                    this.showSuggestions = false;
+                    return;
+                }
+                this.suggestions = this.commonAssets.filter(asset =>
+                    asset.name.toLowerCase().includes(query) ||
+                    asset.symbol.toLowerCase().includes(query)
+                ).slice(0, 5); // Limit to 5 suggestions
+                this.showSuggestions = true;
+            },
+
+            selectSuggestion(asset) {
+                this.formData.name = asset.name;
+                this.formData.symbol = asset.symbol;
+                this.formData.asset_type = asset.type;
+                this.showSuggestions = false;
+            },
+
+            getTypeLabel(type) {
+                const labels = {
+                    stock: "Action", crypto: "Crypto", real_estate: "Immobilier",
+                    commodity: "Matière Première", bond: "Obligation", etf: "ETF", other: "Autre"
+                };
+                return labels[type] || type;
+            },
+
+            getTypeColor(type) {
+                const colors = {
+                    stock: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+                    crypto: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                    real_estate: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+                    commodity: "bg-red-500/20 text-red-300 border-red-500/30",
+                    bond: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+                    etf: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+                    other: "bg-slate-500/20 text-slate-300 border-slate-500/30"
+                };
+                return colors[type] || colors.other;
+            },
+
+            formatCurrency(value) {
+                return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block header %}Mes Objectifs Financiers{% endblock %}
+
+{% block content %}
+<div x-data="goalsApp()" class="min-h-screen">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1
+                    class="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    Mes Objectifs Financiers
+                </h1>
+                <p class="text-slate-400 text-lg">
+                    Définissez et suivez vos objectifs d'investissement
+                </p>
+            </div>
+
+            <button @click="openModal()"
+                class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 shadow-lg text-white rounded-md font-medium transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nouvel Objectif
+            </button>
+        </div>
+
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Active Goals -->
+                <template x-for="goal in activeGoals" :key="goal.id">
+                    <div
+                        class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm hover:border-indigo-500/30 transition-all rounded-xl p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-r"
+                                    :class="getCategoryColor(goal.category)">
+                                    <span x-html="getCategoryIcon(goal.category)" class="text-white"></span>
+                                </div>
+                                <div>
+                                    <h3 class="text-white text-xl font-semibold" x-text="goal.title"></h3>
+                                    <p class="text-slate-400 text-sm mt-1" x-text="goal.description"></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="editGoal(goal)"
+                                    class="text-sm px-3 py-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors">Modifier</button>
+                                <a :href="'/delete_goal/' + goal.id"
+                                    onclick="return confirm('Supprimer cet objectif ?')"
+                                    class="text-sm px-3 py-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors">Supprimer</a>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-slate-400">Progression</span>
+                                    <span class="text-white font-semibold"
+                                        x-text="getProgress(goal).toFixed(1) + '%'"></span>
+                                </div>
+                                <div class="h-3 bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+                                        :style="'width: ' + getProgress(goal) + '%'"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-800/50 rounded-lg p-3">
+                                    <div class="text-xs text-slate-400 mb-1">Actuel</div>
+                                    <div class="text-lg font-bold text-white"
+                                        x-text="formatCurrency(goal.current_amount)"></div>
+                                </div>
+                                <div class="bg-slate-800/50 rounded-lg p-3">
+                                    <div class="text-xs text-slate-400 mb-1">Objectif</div>
+                                    <div class="text-lg font-bold text-white"
+                                        x-text="formatCurrency(goal.target_amount)"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-700">
+                                <div class="flex items-center gap-2 text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                    <span class="text-slate-300" x-text="getDaysLeft(goal.deadline)"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-slate-400">Reste: </span>
+                                    <span class="text-indigo-400 font-semibold"
+                                        x-text="formatCurrency(goal.target_amount - goal.current_amount)"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="activeGoals.length === 0" class="col-span-2 text-center text-slate-400 py-12">
+                    <p>Aucun objectif actif. Créez-en un nouveau !</p>
+                </div>
+            </div>
+
+            <!-- Completed Goals -->
+            <div x-show="completedGoals.length > 0">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-400" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    Objectifs Atteints
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <template x-for="goal in completedGoals" :key="goal.id">
+                        <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <span x-html="getCategoryIcon(goal.category)" class="text-green-400 w-5 h-5"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-white" x-text="goal.title"></h3>
+                                    <p class="text-sm text-green-400"
+                                        x-text="formatCurrency(goal.target_amount) + ' atteint'"></p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-400"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Modal -->
+        <div x-show="showModal" style="display: none;"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            <div class="bg-[#1e1e24] border border-slate-800 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden"
+                @click.away="showModal = false">
+                <div class="flex items-center justify-between p-6 border-b border-slate-800">
+                    <h3 class="text-xl font-semibold text-white"
+                        x-text="editingGoal ? 'Modifier l\'Objectif' : 'Nouvel Objectif'"></h3>
+                    <button @click="showModal = false" class="text-slate-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form action="/save_goal" method="POST" class="p-6 space-y-4">
+                    <input type="hidden" name="id" x-model="formData.id">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Titre</label>
+                            <input name="title" x-model="formData.title" required
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Catégorie</label>
+                            <select name="category" x-model="formData.category"
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                                <option value="retirement">Retraite</option>
+                                <option value="house">Immobilier</option>
+                                <option value="vacation">Vacances</option>
+                                <option value="education">Éducation</option>
+                                <option value="emergency">Sécurité</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Montant Cible (€)</label>
+                            <input type="number" step="any" name="target_amount" x-model="formData.target_amount"
+                                required
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-slate-300">Montant Actuel (€)</label>
+                            <input type="number" step="any" name="current_amount" x-model="formData.current_amount"
+                                required
+                                class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Date cible</label>
+                        <input type="date" name="deadline" x-model="formData.deadline" required
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-slate-300">Description</label>
+                        <textarea name="description" x-model="formData.description"
+                            class="w-full bg-slate-800/50 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <div class="flex gap-3 justify-end pt-4">
+                        <button type="button" @click="showModal = false"
+                            class="px-4 py-2 border border-slate-700 rounded-md text-slate-300 hover:bg-slate-800">Annuler</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 rounded-md text-white font-medium">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="goals-data">
+    {{ goals | tojson | safe }}
+</script>
+<script>
+    function goalsApp() {
+        return {
+            goals: (() => {
+                const script = document.getElementById('goals-data');
+                return script ? JSON.parse(script.textContent) : [];
+            })(),
+            showModal: false,
+            editingGoal: null,
+            formData: {
+                id: '', title: '', category: 'other', target_amount: '', current_amount: '', deadline: '', description: '', status: 'active'
+            },
+
+            get activeGoals() {
+                return this.goals.filter(g => g.status === 'active');
+            },
+
+            get completedGoals() {
+                return this.goals.filter(g => g.status === 'completed');
+            },
+
+            openModal() {
+                this.editingGoal = null;
+                this.resetForm();
+                this.showModal = true;
+            },
+
+            editGoal(goal) {
+                this.editingGoal = goal;
+                this.formData = { ...goal };
+                this.showModal = true;
+            },
+
+            resetForm() {
+                this.formData = {
+                    id: '', title: '', category: 'other', target_amount: '', current_amount: '', deadline: '', description: '', status: 'active'
+                };
+            },
+
+            getProgress(goal) {
+                if (goal.target_amount <= 0) return 0;
+                return Math.min((goal.current_amount / goal.target_amount) * 100, 100);
+            },
+
+            getCategoryColor(category) {
+                const colors = {
+                    retirement: "from-purple-500 to-indigo-500",
+                    house: "from-blue-500 to-cyan-500",
+                    vacation: "from-orange-500 to-pink-500",
+                    education: "from-green-500 to-emerald-500",
+                    emergency: "from-red-500 to-rose-500",
+                    other: "from-slate-500 to-gray-500"
+                };
+                return colors[category] || colors.other;
+            },
+
+            getCategoryIcon(category) {
+                // simplified icons as SVGs
+                return '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/></svg>';
+                // In real app, would switch based on category to specific svg
+            },
+
+            formatCurrency(value) {
+                return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(value);
+            },
+
+            getDaysLeft(deadline) {
+                const days = Math.ceil((new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                return days > 0 ? days + " jours restants" : "Date dépassée";
+            }
+        }
+    }
+</script>
+{% endblock %}
