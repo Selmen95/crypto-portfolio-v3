@@ -57,19 +57,29 @@
                 <span class="text-xl font-bold">Portfolio DSBA</span>
             </a>
             <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
-                <a href="{{ url_for('trading') }}" class="hover:text-white transition-colors">Trading</a>
-                <a href="{{ url_for('markets') }}" class="hover:text-white transition-colors">Marchés</a>
-                <a href="{{ url_for('products') }}" class="hover:text-white transition-colors">Produits</a>
-                <a href="{{ url_for('analytics') }}" class="hover:text-white transition-colors">Analytique</a>
-                <a href="{{ url_for('news_page') }}" class="hover:text-white transition-colors">Actualités</a>
+                <a href="{{ url_for('trading') }}" class="hover:text-white transition-colors">{{ _('Trading') }}</a>
+                <a href="{{ url_for('markets') }}" class="hover:text-white transition-colors">{{ _('Marchés') }}</a>
+                <a href="{{ url_for('products') }}" class="hover:text-white transition-colors">{{ _('Produits') }}</a>
+                <a href="{{ url_for('analytics') }}" class="hover:text-white transition-colors">{{ _('Analytique')
+                    }}</a>
+                <a href="{{ url_for('news_page') }}" class="hover:text-white transition-colors">{{ _('Actualités')
+                    }}</a>
             </nav>
             <div class="flex items-center gap-4">
+                <!-- Language Toggle -->
+                <div class="flex items-center gap-2 mr-2 border-r border-white/10 pr-4">
+                    <a href="{{ url_for('set_language', lang='fr') }}"
+                        class="text-xs font-bold transition-colors {{ 'text-indigo-400' if current_user.language == 'fr' else 'text-slate-500 hover:text-white' }}">FR</a>
+                    <span class="text-slate-800 text-xs">|</span>
+                    <a href="{{ url_for('set_language', lang='en') }}"
+                        class="text-xs font-bold transition-colors {{ 'text-indigo-400' if current_user.language == 'en' else 'text-slate-500 hover:text-white' }}">EN</a>
+                </div>
                 <a href="{{ url_for('onboarding') }}"
-                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Profil
-                    Investisseur</a>
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">{{ _('Profil
+                    Investisseur') }}</a>
                 <a href="{{ url_for('onboarding') }}"
                     class="text-sm font-medium bg-white text-black px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
-                    Commencer
+                    {{ _('Commencer') }}
                 </a>
             </div>
         </div>
@@ -86,9 +96,9 @@
                     Gestion de Patrimoine Globale
                 </div>
                 <h1 class="text-5xl lg:text-7xl font-bold leading-tight mb-6">
-                    Investissez dans<br />
-                    <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">tout ce
-                        qui compte</span>
+                    {{ _('Investissez dans') }}<br />
+                    <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{{
+                        _('tout ce qui compte') }}</span>
                 </h1>
                 <p class="text-lg text-slate-400 max-w-md mx-auto md:mx-0 mb-8">
                     Crypto, Immobilier, Actions, Matières Premières. Une seule plateforme pour visualiser, analyser et
@@ -111,7 +121,7 @@
                     </div>
                     <div>
                         <p class="text-3xl font-bold">360°</p>
-                        <p class="text-sm text-slate-400">Analyse</p>
+                        <p class="text-sm text-slate-400">{{ _('Analyse') }}</p>
                     </div>
                 </div>
             </div>
@@ -122,7 +132,7 @@
                 <!-- Asset Classes -->
                 <div class="bg-slate-900/50 border border-slate-800 backdrop-blur-sm rounded-xl p-6 shadow-2xl">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold text-white">Classes d'Actifs</h3>
+                        <h3 class="font-semibold text-white">{{ _('Classes d\'Actifs') }}</h3>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-800/50 p-4 rounded-lg flex items-center gap-3">

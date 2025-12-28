@@ -104,20 +104,20 @@
                 <h3 class="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Navigation</h3>
                 <nav class="space-y-0.5">
                     {% set nav_items = [
-                    ('landing', 'Accueil', 'home'),
-                    ('dashboard', 'Tableau de Bord', 'layout-dashboard'),
-                    ('assets_list', 'Mes Actifs', 'line-chart'),
-                    ('transactions', 'Transactions', 'arrow-left-right'),
-                    ('objectifs', 'Objectifs', 'target'),
-                    ('alertes', 'Alertes', 'bell'),
-                    ('simulateur', 'Simulateur', 'calculator'),
-                    ('oracle_page', 'Oracle IA 🔮', 'brain-circuit'),
-                    ('auto_trading_page', 'Auto-Trading', 'bot'),
-                    ('analyse', 'Analyse', 'activity'),
-                    ('dividendes', 'Dividendes', 'dollar-sign'),
-                    ('import_export', 'Import/Export', 'file-text'),
-                    ('wallet', 'Portefeuille', 'wallet'),
-                    ('parametres', 'Paramètres', 'settings')
+                    ('landing', _('Accueil'), 'home'),
+                    ('dashboard', _('Tableau de Bord'), 'layout-dashboard'),
+                    ('assets_list', _('Mes Actifs'), 'line-chart'),
+                    ('transactions', _('Transactions'), 'arrow-left-right'),
+                    ('objectifs', _('Objectifs'), 'target'),
+                    ('alertes', _('Alertes'), 'bell'),
+                    ('simulateur', _('Simulateur'), 'calculator'),
+                    ('oracle_page', _('Oracle IA'), 'brain-circuit'),
+                    ('auto_trading_page', _('Auto-Trading'), 'bot'),
+                    ('analyse', _('Analyse'), 'activity'),
+                    ('dividendes', _('Dividendes'), 'dollar-sign'),
+                    ('import_export', _('Import/Export'), 'file-text'),
+                    ('wallet', _('Portefeuille'), 'wallet'),
+                    ('parametres', _('Paramètres'), 'settings')
                     ] %}
 
                     {% for endpoint, label, icon in nav_items %}
@@ -231,11 +231,12 @@
 
             <!-- Status -->
             <div>
-                <h3 class="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Statut</h3>
+                <h3 class="px-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">{{ _('Statut') }}
+                </h3>
                 <div class="space-y-3 px-3">
                     <div class="flex items-center gap-3 text-sm text-zinc-400">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 shadow shadow-emerald-500/50"></span>
-                        Synchronisé
+                        {{ _('Synchronisé') }}
                     </div>
                     <div class="flex items-center gap-3 text-sm text-zinc-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -243,7 +244,7 @@
                             class="text-indigo-500">
                             <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                         </svg>
-                        Suivi en temps réel
+                        {{ _('Suivi en temps réel') }}
                     </div>
                 </div>
             </div>
@@ -257,6 +258,15 @@
             <h2 class="font-semibold text-lg text-white">{% block header %}{% endblock %}</h2>
 
             <div class="flex items-center gap-4">
+                <!-- Language Toggle -->
+                <div
+                    class="flex items-center gap-1 bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-1 px-2 text-[10px] font-bold">
+                    <a href="{{ url_for('set_language', lang='fr') }}"
+                        class="px-1.5 py-0.5 rounded transition-all {{ 'text-indigo-400 bg-indigo-500/10' if current_user.language == 'fr' else 'text-zinc-500 hover:text-zinc-300' }}">FR</a>
+                    <a href="{{ url_for('set_language', lang='en') }}"
+                        class="px-1.5 py-0.5 rounded transition-all {{ 'text-indigo-400 bg-indigo-500/10' if current_user.language == 'en' else 'text-zinc-500 hover:text-zinc-300' }}">EN</a>
+                </div>
+
                 <!-- Privacy Toggle (Bonus functionality for premium feel) -->
                 <button @click="$store.ui.togglePrivacy()"
                     class="p-2.5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:bg-zinc-800 transition-all text-zinc-400 hover:text-white"

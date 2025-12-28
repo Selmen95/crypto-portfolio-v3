@@ -50,12 +50,96 @@ def save_portfolio(p):
         db.session.rollback()
         print(f"Error saving portfolio: {e}")
 
+# Translations Dictionary
+TRANSLATIONS = {
+    'fr': {
+        'Trading': 'Trading',
+        'Marchés': 'Marchés',
+        'Produits': 'Produits',
+        'Analytique': 'Analytique',
+        'Actualités': 'Actualités',
+        'Profil Investisseur': 'Profil Investisseur',
+        'Connexion': 'Connexion',
+        'Commencer': 'Commencer',
+        'Tableau de Bord': 'Tableau de Bord',
+        'Mes Actifs': 'Mes Actifs',
+        'Transactions': 'Transactions',
+        'Objectifs': 'Objectifs',
+        'Alertes': 'Alertes',
+        'Simulateur': 'Simulateur',
+        'Oracle IA': 'Oracle IA',
+        'Auto-Trading': 'Auto-Trading',
+        'Analyse': 'Analyse',
+        'Dividendes': 'Dividendes',
+        'Import/Export': 'Import/Export',
+        'Portefeuille': 'Portefeuille',
+        'Paramètres': 'Paramètres',
+        'Navigation': 'Navigation',
+        'Statut': 'Statut',
+        'Synchronisé': 'Synchronisé',
+        'Suivi en temps réel': 'Suivi en temps réel',
+        'Gérer mon Portfolio': 'Gérer mon Portfolio',
+        'Comment faire ?': 'Comment faire ?',
+        'Sécurité Bancaire': 'Sécurité Bancaire',
+        'Investissez dans tout ce qui compte': 'Investissez dans tout ce qui compte',
+        'Classes d\'Actifs': 'Classes d\'Actifs',
+        'Analytique Avancée': 'Analytique Avancée',
+    },
+    'en': {
+        'Trading': 'Trading',
+        'Marchés': 'Markets',
+        'Produits': 'Products',
+        'Analytique': 'Analytics',
+        'Actualités': 'News',
+        'Profil Investisseur': 'Investor Profile',
+        'Connexion': 'Login',
+        'Commencer': 'Get Started',
+        'Tableau de Bord': 'Dashboard',
+        'Mes Actifs': 'My Assets',
+        'Transactions': 'Transactions',
+        'Objectifs': 'Goals',
+        'Alertes': 'Alerts',
+        'Simulateur': 'Simulator',
+        'Oracle IA': 'AI Oracle',
+        'Auto-Trading': 'Auto-Trading',
+        'Analyse': 'Analysis',
+        'Dividendes': 'Dividends',
+        'Import/Export': 'Import/Export',
+        'Portefeuille': 'Wallet',
+        'Paramètres': 'Settings',
+        'Navigation': 'Navigation',
+        'Statut': 'Status',
+        'Synchronisé': 'Synced',
+        'Suivi en temps réel': 'Live Tracking',
+        'Gérer mon Portfolio': 'Manage my Portfolio',
+        'Comment faire ?': 'How it works?',
+        'Sécurité Bancaire': 'Bank Security',
+        'Investissez dans tout ce qui compte': 'Invest in everything that matters',
+        'Classes d\'Actifs': 'Asset Classes',
+        'Analytique Avancée': 'Advanced Analytics',
+    }
+}
+
 # Context Processor
 @app.context_processor
 def inject_portfolio():
+    def translate(text):
+        lang = 'fr'
+        if current_user.is_authenticated:
+            lang = current_user.language or 'fr'
+        return TRANSLATIONS.get(lang, TRANSLATIONS['fr']).get(text, text)
+        
     if current_user.is_authenticated:
-        return dict(portfolio=get_portfolio(), current_user=current_user)
-    return dict(portfolio=None, current_user=current_user)
+        return dict(portfolio=get_portfolio(), current_user=current_user, _=translate)
+    return dict(portfolio=None, current_user=current_user, _=translate)
+
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    if lang in ['fr', 'en']:
+        if current_user.is_authenticated:
+            current_user.language = lang
+            db.session.commit()
+    return redirect(request.referrer or url_for('index'))
 
 # --- Auth Routes ---
 
