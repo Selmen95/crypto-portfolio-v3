@@ -110,7 +110,12 @@ class DBPortfolioAdapter:
         if 'age' in data: self.user.age = data['age']
         if 'profession' in data: self.user.profession = data['profession']
         if 'total_net_worth' in data: self.user.total_net_worth = data['total_net_worth']
-        # ... map other fields if needed
+        if 'monthly_contribution' in data: self.user.monthly_contribution = data['monthly_contribution']
+        if 'email_notifications' in data: self.user.email_notifications = data['email_notifications']
+        if 'weekly_reports' in data: self.user.weekly_reports = data['weekly_reports']
+        if 'default_currency' in data: self.user.default_currency = data['default_currency']
+        if 'language' in data: self.user.language = data['language']
+        if 'role' in data: self.user.role = data['role']
 
     # --- Settings ---
     def get_auto_trade_settings(self) -> AutoTradeSettings:

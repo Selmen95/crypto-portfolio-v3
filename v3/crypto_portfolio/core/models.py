@@ -14,10 +14,21 @@ class User(UserMixin, db.Model):
     
     # Profile Data
     full_name = db.Column(db.String(100))
+    email = db.Column(db.String(120), unique=True)
     age = db.Column(db.Integer)
     profession = db.Column(db.String(100))
     total_net_worth = db.Column(db.Float, default=0.0)
     monthly_contribution = db.Column(db.Float, default=0.0)
+    
+    # New preference fields
+    email_notifications = db.Column(db.Boolean, default=True)
+    weekly_reports = db.Column(db.Boolean, default=True)
+    default_currency = db.Column(db.String(10), default='USD')
+    language = db.Column(db.String(10), default='fr')
+    role = db.Column(db.String(20), default='Investisseur')
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    bio = db.Column(db.Text)
+    profile_picture_url = db.Column(db.String(255))
     
     # Relationships
     assets = db.relationship('Asset', backref='owner', lazy='dynamic')
@@ -33,6 +44,31 @@ class User(UserMixin, db.Model):
         
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'full_name': self.full_name or self.username,
+            'email': self.email or f"{self.username}@example.com",
+            'age': self.age,
+            'profession': self.profession,
+            'total_net_worth': self.total_net_worth,
+            'monthly_contribution': self.monthly_contribution,
+            'email_notifications': self.email_notifications,
+            'weekly_reports': self.weekly_reports,
+            'default_currency': self.default_currency,
+            'language': self.language,
+            'role': self.role,
+            'created_date': self.created_date.isoformat() if self.created_date else None,
+            'bio': self.bio or "",
+            'profile_picture_url': self.profile_picture_url or "",
+            'notifications_config': {
+                'email_trades': self.email_notifications,
+                'email_profits': True, # Default values for template compatibility
+                'email_community': True
+            }
+        }
 
 class Asset(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)

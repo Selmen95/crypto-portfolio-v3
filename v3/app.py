@@ -14,6 +14,7 @@ from crypto_portfolio.utils.api import CoinGeckoAPI
 from crypto_portfolio.utils.security import SecurityManager
 from crypto_portfolio.core.trading_engine import TradingEngine
 from crypto_portfolio.core.ai_predictor import AIPredictor
+from crypto_portfolio.utils.news import FinancialNewsAPI
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key-change-me'
@@ -753,11 +754,17 @@ def parametres():
     # Assuming object property access.
     # If dict expected, we need to_dict helper on User, which we added? No we didn't add full to_dict on User.
     # Let's assume template uses object access {{ preferences.full_name }}.
-    return render_template('parametres.html', preferences=profile, active_page='parametres')
+    return render_template('parametres.html', preferences=profile.to_dict(), active_page='parametres')
 
 @app.route('/guide')
 def guide_page():
     return render_template('guide.html', active_page='guide')
+
+@app.route('/news')
+@login_required
+def news_page():
+    news = FinancialNewsAPI.get_all_news()
+    return render_template('news.html', news=news, active_page='news')
 
 @app.route('/oracle')
 @login_required
@@ -895,7 +902,7 @@ def profile_page():
     profile = portfolio.get_user_profile()
     # Assuming profile (User model) can be passed to template that expects dict or obj
     # Template uses {{ user_profile.full_name }} etc.
-    return render_template('profile.html', user_profile=profile, active_page='profile')
+    return render_template('profile.html', user_profile=profile.to_dict(), active_page='profile')
 
 @app.route('/api/profile', methods=['POST'])
 @login_required
@@ -907,7 +914,8 @@ def update_profile():
     if 'age' in data: user.age = int(data['age'])
     if 'profession' in data: user.profession = data['profession']
     if 'total_net_worth' in data: user.total_net_worth = float(data['total_net_worth'])
-    # ... map others
+    if 'bio' in data: user.bio = data['bio']
+    if 'profile_picture_url' in data: user.profile_picture_url = data['profile_picture_url']
     
     db.session.commit()
     # Return dict? User model needs to_dict? 
@@ -992,9 +1000,6 @@ def products():
 def analytics():
     return render_template('analytics.html', active_page='analytics')
 
-@app.route('/learn')
-def learn():
-    return render_template('learn.html', active_page='learn')
 
 # CLI Command for init
 @app.cli.command("init-db")
@@ -1010,7 +1015,9 @@ if __name__ == '__main__':
         db.create_all()
     
     # socketio.start_background_task(background_price_fetch, app)
-    print("Server ready! Open this link: http://127.0.0.1:8000")
-    # socketio.run(app, debug=True, host='127.0.0.1', port=8000)
-    app.run(debug=True, host='127.0.0.1', port=8000)
+    import os
+    port = int(os.environ.get('PORT', 8888))
+    print(f"Server ready! Open this link: http://127.0.0.1:{port}")
+    app.run(debug=True, host='127.0.0.1', port=port)
+    # socketio.run(app, debug=True, host='127.0.0.1', port=port)
 

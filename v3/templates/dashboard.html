@@ -186,8 +186,13 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="application/json" id="portfolio-assets-data">
-    {{ assets | tojson | safe }}
+<script type="application/json" id="dashboard-data">
+    {
+        "assets": {{ assets | tojson | safe }},
+        "chart_labels": {{ chart_labels | tojson | safe }},
+        "chart_values": {{ chart_values | tojson | safe }},
+        "total_val": {{ total_val if total_val else 0 }}
+    }
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -251,9 +256,8 @@
         });
 
         // --- Existing Charts Logic ---
-        // (Simplified for brevity, reusing the same setup)
-        const portfolioAssetsScript = document.getElementById('portfolio-assets-data');
-        const portfolioAssets = portfolioAssetsScript ? JSON.parse(portfolioAssetsScript.textContent) : [];
+        const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+        const portfolioAssets = dashboardData.assets || [];
 
         // ... (Keep existing chart logic or assume it works) ...
         // I will re-inject the chart logic here properly as it was 400 lines of code.
@@ -324,81 +328,79 @@
 
         // ... Portfolio Chart ...
         const ctxPo = document.getElementById('portfolioChart')?.getContext('2d');
-        // Data injected from backend
-        let portfolioLabels = {{ chart_labels | tojson | safe
-    }};
-    let portfolioValues = {{ chart_values | tojson | safe }};
+        // Data from data island
+        let portfolioLabels = dashboardData.chart_labels;
+        let portfolioValues = dashboardData.chart_values;
 
-    // FALLBACK: If no data (or empty array), use mock data to ensure graph shows up (User Request)
-    if (!portfolioLabels || portfolioLabels.length < 2) {
-        console.log("Using fallback mock data for chart");
-        portfolioLabels = Array.from({ length: 30 }, (_, i) => `J${i + 1}`);
-        // Generate a nice curve
-        let val = {{ total_val if total_val > 0 else 10000
-    }};
-    // Start lower to show growth
-    let currentVal = val * 0.8;
+        // FALLBACK: If no data (or empty array), use mock data to ensure graph shows up (User Request)
+        if (!portfolioLabels || portfolioLabels.length < 2) {
+            console.log("Using fallback mock data for chart");
+            portfolioLabels = Array.from({ length: 30 }, (_, i) => `J${i + 1}`);
+            // Generate a nice curve
+            let val = dashboardData.total_val > 0 ? dashboardData.total_val : 10000;
+            // Start lower to show growth
+            let currentVal = val * 0.8;
 
-    portfolioValues = portfolioLabels.map((_, i) => {
-        // progressive growth + random noise
-        currentVal = currentVal * (1 + (Math.random() * 0.04 - 0.015));
-        return currentVal;
-    });
+            portfolioValues = portfolioLabels.map((_, i) => {
+                // progressive growth + random noise
+                currentVal = currentVal * (1 + (Math.random() * 0.04 - 0.015));
+                return currentVal;
+            });
             // Ensure last point matches current value logic roughly
         }
 
-    if (ctxPo) {
-        const gradient = ctxPo.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
-        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-        new Chart(ctxPo, {
-            type: 'line',
-            data: {
-                labels: portfolioLabels,
-                datasets: [{
-                    label: 'Valeur Totale',
-                    data: portfolioValues,
-                    borderColor: '#6366f1',
-                    backgroundColor: gradient,
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#6366f1',
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleColor: '#e2e8f0',
-                        bodyColor: '#e2e8f0',
-                        borderColor: 'rgba(99, 102, 241, 0.2)',
-                        borderWidth: 1
-                    }
+        if (ctxPo) {
+            const gradient = ctxPo.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+            gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+            new Chart(ctxPo, {
+                type: 'line',
+                data: {
+                    labels: portfolioLabels,
+                    datasets: [{
+                        label: 'Valeur Totale',
+                        data: portfolioValues,
+                        borderColor: '#6366f1',
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#6366f1',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
                 },
-                scales: {
-                    x: {
-                        display: true,
-                        grid: { display: false, drawBorder: false },
-                        ticks: { color: '#64748b' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#e2e8f0',
+                            borderColor: 'rgba(99, 102, 241, 0.2)',
+                            borderWidth: 1
+                        }
                     },
-                    y: {
-                        display: true,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                        ticks: { color: '#64748b', callback: (value) => '$' + value }
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#64748b' }
+                        },
+                        y: {
+                            display: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                            ticks: { color: '#64748b', callback: (value) => '$' + value }
+                        }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
     });
 </script>
 {% endblock %}

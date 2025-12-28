@@ -210,7 +210,7 @@
                                 stroke-linejoin="round">
                                 <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
                                 <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                                <path d="M12 12V22" />
                             </svg>
                             {% elif icon == 'settings' %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -251,13 +251,36 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 overflow-auto">
+    <main class="flex-1 ml-64 flex flex-col min-h-screen">
         <header
             class="h-20 border-b border-zinc-800 flex items-center justify-between px-8 bg-[#0f0f13]/80 backdrop-blur sticky top-0 z-10 transition-all duration-200">
             <h2 class="font-semibold text-lg text-white">{% block header %}{% endblock %}</h2>
+
+            <div class="flex items-center gap-4">
+                <!-- Privacy Toggle (Bonus functionality for premium feel) -->
+                <button @click="$store.ui.togglePrivacy()"
+                    class="p-2.5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 hover:bg-zinc-800 transition-all text-zinc-400 hover:text-white"
+                    :title="$store.ui.privacyMode ? 'Afficher les montants' : 'Masquer les montants'">
+                    <template x-if="!$store.ui.privacyMode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </template>
+                    <template x-if="$store.ui.privacyMode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                            <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                    </template>
+                </button>
+            </div>
         </header>
 
-        <div class="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in-up">
+        <div class="p-8 space-y-8 animate-fade-in-up">
             {% block content %}{% endblock %}
         </div>
     </main>
