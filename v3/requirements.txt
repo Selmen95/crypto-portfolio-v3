@@ -16,4 +16,5 @@ numpy
 cryptography
 python-dotenv
 email_validator
+gunicorn
 
