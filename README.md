@@ -1,10 +1,10 @@
-# 📊 CryptoPortfolio
+# 📊 Portfolio DSBA
 
 **Modular Python Project – Incremental Development (v0 / v1 / v2 / v3)**
 
 ## 1. Introduction
 
-**CryptoPortfolio** is a cryptocurrency portfolio management and analysis application.
+**Portfolio DSBA** is a cryptocurrency portfolio management and analysis application.
 The project was developed as part of a **Python programming and software engineering course**, with the objective of designing and implementing a **non-trivial application**, with a strong focus on problem analysis, software design, modularity, and code quality.
 
 The project follows an **incremental development approach**, structured into several successive versions (**v0, v1, v2, v3**). Each version is executable and illustrates the progressive evolution of the application.
